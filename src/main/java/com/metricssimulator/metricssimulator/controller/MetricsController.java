@@ -17,12 +17,17 @@ public class MetricsController {
     private MeterRegistry meterRegistry;
 
     private List<Integer> transitGatewayStatusUnavailable = new ArrayList<>();
+    private List<Integer> globalProtectStatusDisconnected = new ArrayList<>();
 
     public MetricsController(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
 
         Gauge.builder("transitgateway.unavailable", transitGatewayStatusUnavailable, Collection::size)
                 .description("Transit Gateway Unavailable Status")
+                .register(meterRegistry);
+
+        Gauge.builder("globalprotect.disconnected", globalProtectStatusDisconnected, Collection::size)
+                .description("Global Protect Disconnected Status")
                 .register(meterRegistry);
     }
 
@@ -40,4 +45,17 @@ public class MetricsController {
         return "Transit Gateway status set to available";
     }
 
+    @GetMapping("/globalprotect-disconnected")
+    public String globalProtectAttached() {
+        if(globalProtectStatusDisconnected.size() == 0) {
+            globalProtectStatusDisconnected.add(1);
+        }
+        return "Global Protect status set to disconnected";
+    }
+
+    @GetMapping("/globalprotect-attached")
+    public String globalProtectDisconnected() {
+        globalProtectStatusDisconnected.clear();
+        return "Global Protect status set to attached";
+    }
 }
