@@ -23,4 +23,10 @@ scrape_configs:
     file_sd_configs:
       - files:
         - /etc/prometheus/targets.json
-
+  - job_name:       'transitgatway'
+    scrape_interval: 5s
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [127.0.0.1:8080]
+        labels:
+          group: 'transitgateway_group'
