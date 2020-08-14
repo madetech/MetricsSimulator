@@ -4,11 +4,10 @@ import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/metrics")
@@ -18,6 +17,7 @@ public class MetricsController {
 
     private List<Integer> transitGatewayStatusUnavailable = new ArrayList<>();
     private List<Integer> globalProtectStatusDisconnected = new ArrayList<>();
+    private Map<String, VMMetrics> registeredVMs = new HashMap<>();
 
     public MetricsController(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
@@ -29,6 +29,7 @@ public class MetricsController {
         Gauge.builder("globalprotect.disconnected", globalProtectStatusDisconnected, Collection::size)
                 .description("Global Protect Disconnected Status")
                 .register(meterRegistry);
+
     }
 
     @GetMapping("/transitgateway-unavailable")
@@ -57,5 +58,47 @@ public class MetricsController {
     public String globalProtectDisconnected() {
         globalProtectStatusDisconnected.clear();
         return "Global Protect status set to attached";
+    }
+
+    @GetMapping("/register-vm")
+    public String registerVM(@RequestParam("vm-id") String vmId) {
+        if(vmId == null || vmId.isEmpty()) return "Please supply a query parameter 'vm-id' to register a Virtual Machine";
+
+        if(!registeredVMs.containsKey(cleanVMIdInput(vmId))) registeredVMs.put(vmId, new VMMetrics(vmId, this.meterRegistry));
+        return "Virtual Machine [" + vmId + "] Registered";
+    }
+
+    @GetMapping("/vm-system-reachability-passed")
+    public String vmSystemReachabilityPassed(@RequestParam("vm-id") String vmId) {
+        registeredVMs.get(vmId).setSystemReachable(true);
+        return "Virtual Machine [" + vmId + "] System Reachability set to Passed";
+    }
+
+    @GetMapping("/vm-system-reachability-failed")
+    public String vmSystemReachabilityFailed(@RequestParam("vm-id") String vmId) {
+        registeredVMs.get(vmId).setSystemReachable(false);
+        return "Virtual Machine [" + vmId + "] System Reachability set to Failed";
+    }
+
+    @GetMapping("/vm-instance-reachability-passed")
+    public String vmInstanceReachabilityPassed(@RequestParam("vm-id") String vmId) {
+        registeredVMs.get(vmId).setInstanceReachable(true);
+        return "Virtual Machine [" + vmId + "] Instance Reachable set to Passed";
+    }
+
+    @GetMapping("/vm-instance-reachability-failed")
+    public String vmInstanceReachabilityFailed(@RequestParam("vm-id") String vmId) {
+        registeredVMs.get(vmId).setInstanceReachable(false);
+        return "Virtual Machine [" + vmId + "] Instance Reachable set to Failed";
+    }
+
+    @GetMapping("/vm-cpu")
+    public String vmCpuUtilisation(@RequestParam("vm-id") String vmId, @RequestParam("percentage") Integer percentage) {
+        registeredVMs.get(vmId).setInstanceCpuUtilization(percentage);
+        return "Virtual Machine [" + vmId + "] CPU Utilization event captured";
+    }
+
+    private String cleanVMIdInput(String vmId) {
+        return vmId.trim().toLowerCase();
     }
 }
