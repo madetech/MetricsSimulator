@@ -12,9 +12,9 @@ public class VMMetrics {
 
     private List<Integer> systemUnreachableGauge = new ArrayList<>();
     private List<Integer> instanceUnreachableGauge = new ArrayList<>();
-    private AtomicInteger cpu = new AtomicInteger(0);
-    private List<Integer> networkInGauge = new ArrayList<>();
-    private List<Integer> networkOutGauge = new ArrayList<>();
+    private AtomicInteger cpuUtilization = new AtomicInteger(0);
+    private AtomicInteger networkInBytes = new AtomicInteger(0);
+    private AtomicInteger networkOutBytes = new AtomicInteger(0);
 
     public VMMetrics(String vmId, MeterRegistry meterRegistry) {
         Gauge.builder("vm-" + vmId +".system-reachability-failed", systemUnreachableGauge, Collection::size)
@@ -25,15 +25,15 @@ public class VMMetrics {
                 .description("Virtual Machine [" + vmId + " Instance Reachability Status")
                 .register(meterRegistry);
 
-        Gauge.builder("vm-" + vmId + ".cpu-utilization", cpu, AtomicInteger::intValue)
+        Gauge.builder("vm-" + vmId + ".cpuUtilization-utilization", cpuUtilization, AtomicInteger::intValue)
                 .description("Virtual Machine [" + vmId + " CPU Utilization")
                 .register(meterRegistry);
 
-        Gauge.builder("vm-" + vmId +".network-in", networkInGauge, Collection::size)
+        Gauge.builder("vm-" + vmId +".network-in", networkInBytes, AtomicInteger::intValue)
                 .description("Virtual Machine [" + vmId + " NetworkIn")
                 .register(meterRegistry);
 
-        Gauge.builder("vm-" + vmId +".network-out", networkOutGauge, Collection::size)
+        Gauge.builder("vm-" + vmId +".network-out", networkOutBytes, AtomicInteger::intValue)
                 .description("Virtual Machine [" + vmId + " NetworkOut")
                 .register(meterRegistry);
 
@@ -56,6 +56,14 @@ public class VMMetrics {
     }
 
     void setInstanceCpuUtilization(Integer percentage) {
-        cpu.set(percentage);
+        cpuUtilization.set(percentage);
+    }
+
+    void setNetworkIn(Integer bytes) {
+        networkInBytes.set(bytes);
+    }
+
+    void setNetworkOut(Integer bytes) {
+        networkOutBytes.set(bytes);
     }
 }

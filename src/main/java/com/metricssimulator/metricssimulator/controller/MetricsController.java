@@ -70,32 +70,44 @@ public class MetricsController {
 
     @GetMapping("/vm-system-reachability-passed")
     public String vmSystemReachabilityPassed(@RequestParam("vm-id") String vmId) {
-        registeredVMs.get(vmId).setSystemReachable(true);
+        registeredVMs.get(cleanVMIdInput(vmId)).setSystemReachable(true);
         return "Virtual Machine [" + vmId + "] System Reachability set to Passed";
     }
 
     @GetMapping("/vm-system-reachability-failed")
     public String vmSystemReachabilityFailed(@RequestParam("vm-id") String vmId) {
-        registeredVMs.get(vmId).setSystemReachable(false);
+        registeredVMs.get(cleanVMIdInput(vmId)).setSystemReachable(false);
         return "Virtual Machine [" + vmId + "] System Reachability set to Failed";
     }
 
     @GetMapping("/vm-instance-reachability-passed")
     public String vmInstanceReachabilityPassed(@RequestParam("vm-id") String vmId) {
-        registeredVMs.get(vmId).setInstanceReachable(true);
+        registeredVMs.get(cleanVMIdInput(vmId)).setInstanceReachable(true);
         return "Virtual Machine [" + vmId + "] Instance Reachable set to Passed";
     }
 
     @GetMapping("/vm-instance-reachability-failed")
     public String vmInstanceReachabilityFailed(@RequestParam("vm-id") String vmId) {
-        registeredVMs.get(vmId).setInstanceReachable(false);
+        registeredVMs.get(cleanVMIdInput(vmId)).setInstanceReachable(false);
         return "Virtual Machine [" + vmId + "] Instance Reachable set to Failed";
     }
 
     @GetMapping("/vm-cpu")
     public String vmCpuUtilisation(@RequestParam("vm-id") String vmId, @RequestParam("percentage") Integer percentage) {
-        registeredVMs.get(vmId).setInstanceCpuUtilization(percentage);
+        registeredVMs.get(cleanVMIdInput(vmId)).setInstanceCpuUtilization(percentage);
         return "Virtual Machine [" + vmId + "] CPU Utilization event captured";
+    }
+
+    @GetMapping("/vm-network-in")
+    public String vmNetworkIn(@RequestParam("vm-id") String vmId, @RequestParam("bytes") Integer bytes) {
+        registeredVMs.get(cleanVMIdInput(vmId)).setNetworkIn(bytes);
+        return "Virtual Machine [" + vmId + "] Network In event captured";
+    }
+
+    @GetMapping("/vm-network-out")
+    public String vmNetworkOut(@RequestParam("vm-id") String vmId, @RequestParam("bytes") Integer bytes) {
+        registeredVMs.get(cleanVMIdInput(vmId)).setNetworkOut(bytes);
+        return "Virtual Machine [" + vmId + "] Network Out event captured";
     }
 
     private String cleanVMIdInput(String vmId) {
