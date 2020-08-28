@@ -28,3 +28,5 @@ blog/bin/
 hs_err_pid*
 
 **/*.DS_Store
+# VSCode
+.vscode
