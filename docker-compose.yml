@@ -16,6 +16,7 @@ services:
       - GF_SECURITY_ADMIN_USER=pttp
       - GF_SECURITY_ADMIN_PASSWORD=password
       - GF_USERS_ALLOW_SIGN_UP=false
+      - AWS_SDK_LOAD_CONFIG=1
     restart: unless-stopped
 
 

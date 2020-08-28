@@ -7,12 +7,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class VMMetrics {
 
     private List<Integer> systemUnreachableGauge = new ArrayList<>();
     private List<Integer> instanceUnreachableGauge = new ArrayList<>();
-    private AtomicInteger cpuUtilization = new AtomicInteger(0);
+    private List<Integer> instanceStatusUnavailableGauge = new ArrayList<>();
+    private AtomicLong cpuUtilization = new AtomicLong();
     private AtomicInteger networkInBytes = new AtomicInteger(0);
     private AtomicInteger networkOutBytes = new AtomicInteger(0);
 
@@ -25,7 +27,11 @@ public class VMMetrics {
                 .description("Virtual Machine [" + vmId + " Instance Reachability Status")
                 .register(meterRegistry);
 
-        Gauge.builder("vm-" + vmId + ".cpuUtilization-utilization", cpuUtilization, AtomicInteger::intValue)
+        Gauge.builder("vm-" + vmId +".unavailable", instanceStatusUnavailableGauge, Collection::size)
+                .description("Virtual Machine [" + vmId + " Instance Running Status")
+                .register(meterRegistry);
+
+        Gauge.builder("vm-" + vmId + ".cpuUtilization-utilization", cpuUtilization, AtomicLong::doubleValue)
                 .description("Virtual Machine [" + vmId + " CPU Utilization")
                 .register(meterRegistry);
 
@@ -55,8 +61,8 @@ public class VMMetrics {
         }
     }
 
-    void setInstanceCpuUtilization(Integer percentage) {
-        cpuUtilization.set(percentage);
+    void setInstanceCpuUtilization(Double percentage) {
+        cpuUtilization.set(percentage.longValue());
     }
 
     void setNetworkIn(Integer bytes) {
@@ -65,5 +71,13 @@ public class VMMetrics {
 
     void setNetworkOut(Integer bytes) {
         networkOutBytes.set(bytes);
+    }
+
+    public void setAvailable(boolean isAvailable) {
+        if(isAvailable) {
+            instanceStatusUnavailableGauge.clear();
+        } else {
+            if(instanceStatusUnavailableGauge.size() == 0) instanceStatusUnavailableGauge.add(1);
+        }
     }
 }

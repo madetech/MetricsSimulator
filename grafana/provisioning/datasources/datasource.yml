@@ -49,3 +49,15 @@ datasources:
     version: 1
     # <bool> allow users to edit datasources from the UI.
     editable: true
+  - name: CloudWatch
+    type: cloudwatch
+    access: proxy
+    orgId: 1
+    jsonData:
+      defaultRegion: "eu-west-2"
+    secureJsonData:
+      accessKey: XXXX
+      secretKey: XXXX
+    version: 1
+    editable: false
+

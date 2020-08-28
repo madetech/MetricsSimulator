@@ -68,6 +68,18 @@ public class MetricsController {
         return "Virtual Machine [" + vmId + "] Registered";
     }
 
+    @GetMapping("/vm-state-stopped-terminated")
+    public String vmStateStopped(@RequestParam("vm-id") String vmId) {
+        registeredVMs.get(cleanVMIdInput(vmId)).setAvailable(false);
+        return "Virtual Machine [" + vmId + "] Status is set to Unavailable";
+    }
+
+    @GetMapping("/vm-state-running")
+    public String vmStateRunning(@RequestParam("vm-id") String vmId) {
+        registeredVMs.get(cleanVMIdInput(vmId)).setAvailable(true);
+        return "Virtual Machine [" + vmId + "] Status is set to Running";
+    }
+
     @GetMapping("/vm-system-reachability-passed")
     public String vmSystemReachabilityPassed(@RequestParam("vm-id") String vmId) {
         registeredVMs.get(cleanVMIdInput(vmId)).setSystemReachable(true);
@@ -93,9 +105,9 @@ public class MetricsController {
     }
 
     @GetMapping("/vm-cpu")
-    public String vmCpuUtilisation(@RequestParam("vm-id") String vmId, @RequestParam("percentage") Integer percentage) {
+    public String vmCpuUtilisation(@RequestParam("vm-id") String vmId, @RequestParam("percentage") Double percentage) {
         registeredVMs.get(cleanVMIdInput(vmId)).setInstanceCpuUtilization(percentage);
-        return "Virtual Machine [" + vmId + "] CPU Utilization event captured";
+        return "Virtual Machine [" + vmId + "] CPU Utilization [" + percentage  + "] event captured";
     }
 
     @GetMapping("/vm-network-in")
